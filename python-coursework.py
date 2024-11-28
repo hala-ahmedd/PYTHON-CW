@@ -8,6 +8,11 @@ STEPS:
 5. The binary message will be extracted from the image using the LSB approach.
 6. The binary message gets converted to text.
 7. The text gets decrypted.
+3. The encrypted message is converted to binary.
+4. The binary message will be inputted in the image using the LSB approach.
+5. The binary message will be extracted from the image using the LSB approach.
+6. The binary message gets converted to text.
+7. The text gets decrypted.
 '''
 
 #Importing the needed libraries for Caesar Cipher Encryption and Decryption implementation
@@ -83,6 +88,7 @@ def hide_message_in_image(image_path, binary_message, output_image_path):
             for i in range(3):  #  3 RGB channels
                 if bit_index < len(message_bits): #checks if we still have bits left in the message to embed
                     pixel[i] = (pixel[i] & 0xFE) | message_bits[bit_index] #this operation ensures that the LSB is cleared (set to 0) without affecting the other bits.
+                    pixel[i] = (pixel[i] & 0xFE) | message_bits[bit_index] #this operation ensures that the LSB is cleared (set to 0) without affecting the other bits.
                     bit_index += 1 #increments the index to move to the next bit in the message.
             image.putpixel((x, y), tuple(pixel)) # the pixel is updated using image.putpixel((x, y), tuple(pixel)) where tuple(pixel) converts the list back to a tuple to be compatible with the image format.
             if bit_index >= len(message_bits): #if all bits of the message have been embedded, the loop breaks early to avoid unnecessary pixel processing.(for the nested loop)
@@ -90,8 +96,16 @@ def hide_message_in_image(image_path, binary_message, output_image_path):
         if bit_index >= len(message_bits): #if all bits of the message have been embedded, the loop breaks early to avoid unnecessary pixel processing.(for the original loop)
             break
  
+ 
     image.save(output_image_path) #saves the image in the desired path
     image.show() #shows the picture to the user
+    print(f"Message hidden in image: {output_image_path}")
+ 
+# Extract Message from Image
+def extract_message_from_image(image_path): 
+    image = Image.open(image_path) # opens the image
+    width, height = image.size # gets the image dimensions
+    extracted_bits = [] # initializes an empty list to store extracted bits
     print(f"Message hidden in image: {output_image_path}")
  
 # Extract Message from Image
