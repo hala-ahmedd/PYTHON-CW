@@ -23,7 +23,7 @@ class Encrypting_and_Decrypting:
     characters = string.punctuation + string.ascii_letters + string.digits #gets all the characters
     characters = list(characters) #converts them to a list
     characters.append(" ")  # add space as a character to the list
-    key = characters.copy() #takes a copy of the  character's list and calls it key
+    key = characters.copy() #takes a copy of the character's list and calls it key
     random.shuffle(key)  # shuffles the key
  
     # Encryption Method
@@ -33,7 +33,7 @@ class Encrypting_and_Decrypting:
             if letter in self.characters: #check if the letter is in the characters list, the following operation will happen
                 index = self.characters.index(letter) #gets the letter's index in the original list which is characters
                 shifted = (index + 13) % len(self.characters)  # shifts the index by 13 & whenever the list is done,repeats it 
-                cipher += self.key[shifted] #add on to the cipher variable from the shuffled list which is key using the updated index
+                cipher += self.key[shifted] #add on to the cipher variable from key using the shifted index
             else: #if the letter is NOT in the characters list, the following operation will happen
                 cipher += letter  # leave unsupported characters unchanged
         return cipher #the function outputs the encrypted version of the given text
@@ -43,12 +43,13 @@ class Encrypting_and_Decrypting:
         plain = "" #empty string to add on the decrypted characters
         for letter in cipher: #iterates over each letter in the encrypted text
             if letter in self.key: #check if the letter is in the key list, the following operation will happen
-                index = self.key.index(letter) #gets the letter's index in the copied, shuffled list: key
+                index = self.key.index(letter) #gets the letter's index in key
                 unshifted = (index - 13) % len(self.characters) #de-shifts the index by 13 & whenever the list is done,repeat it 
-                plain += self.characters[unshifted] #add on to plain text from the original list which is characters using the updated index
+                plain += self.characters[unshifted] #add on to plain text from characters using the shifted index
             else:
                 plain += letter  # leave unsupported characters unchanged
         return plain #the function outputs the decrypted version of the given text
+
 #Text and Binary conversions class:
 class Conversion:
     # Convert text to binary method
@@ -71,25 +72,25 @@ def hide_message_in_image(image_path, binary_message, output_image_path):
     image = Image.open(image_path) #opens the image 
     image = image.convert("RGB") #converts the image to RGB (Red,Green,Blue) to have bits based on the shades of the pictures
  
-    # Include the length of the binary message as a 32-bit integer (from 0 to 4,294,967,295) to know the message's limits
-    message_length = len(binary_message) #calculates how long(length) the binary message is (in bits).
+    # Include the length of the binary message as a 32-bit integer 
+    message_length = len(binary_message) #calculates the length of the binary message 
     length_binary = format(message_length, '032b')  # puts the length of the message in 32-bit length format
     binary_message= length_binary + binary_message  # Prepend length(adding it to the beginning of a string)
  
     message_bits = list(map(int, binary_message)) #converts each character (either '0' or '1') in the binary message into an integer and turns them into a list
-    width, height = image.size # gets the width and height of the image in pixels, so we know how many pixels are available for embedding the message
+    width, height = image.size # gets the width and height of the image in pixels
     bit_index = 0  #intilaizing the number of bits of the message
     for y in range(height): #iterate over every pixel in the image (width by height).
-        for x in range(width): #iterate over every pixel in the image (width by height).
+        for x in range(width): 
             pixel = list(image.getpixel((x, y))) #get the pixel at position (x, y) as a list of  tuples of (R, G, B) values
             for i in range(3):  #  3 RGB channels
                 if bit_index < len(message_bits): #checks if we still have bits left in the message to embed
-                    pixel[i] = (pixel[i] & 0xFE) | message_bits[bit_index] #this operation ensures that the LSB is cleared (set to 0) without affecting the other bits and change it with the message's bit.
-                    bit_index += 1 #increments the index to move to the next bit in the message.
-            image.putpixel((x, y), tuple(pixel)) # the pixel is updated using image.putpixel((x, y), tuple(pixel)) where tuple(pixel) converts the list back to a tuple to be compatible with the image format.
+                    pixel[i] = (pixel[i] & 0xFE) | message_bits[bit_index] # the LSB is cleared (set to 0 without affecting the other bits) and changed with the message's bit.
+                    bit_index += 1 #increments the index  (message's next bit)
+            image.putpixel((x, y), tuple(pixel)) # the pixel is updated and converted to a tuple to be compatible with the image format.
             if bit_index >= len(message_bits): #if all bits of the message have been embedded, the loop breaks early to avoid unnecessary pixel processing.(for the nested loop)
                 break
-        if bit_index >= len(message_bits): #if all bits of the message have been embedded, the loop breaks early to avoid unnecessary pixel processing.(for the original loop)
+        if bit_index >= len(message_bits): # same previous condition(for the original loop)
             break
     image.save(output_image_path) #saves the image in the desired path
     image.show() #shows the picture to the user
@@ -108,12 +109,12 @@ def extract_message_from_image(image_path):
  
     # Extract the first 32 bits for the message length
     length_bits = extracted_bits[:32] # slicing the list to get the first 32 elements
-    message_length = int("".join(map(str, length_bits)), 2) #converts the length_bits (which is a list of bits) into a binary string, then converts it to an integer.
+    message_length = int("".join(map(str, length_bits)), 2) #converts the length_bits into a binary string, then to an integer.
  
     # Extract the actual message bits
-    message_bits = extracted_bits[32:32 + message_length] #extracts the message from the list of bits, based on the length information stored in the first 32 bits.
+    message_bits = extracted_bits[32:32 + message_length] #extracts the message from the list of bits
     binary_message = "".join(map(str, message_bits)) #converts each element of message_bits to a string and concatenate them into a single binary string
-    return binary_message
+    return binary_message #returns the final binary message
 
 # User Code
 if __name__ == "__main__": #main function: all functions start/get provoked after it (could be removed but better for clarity and organization)
@@ -155,21 +156,20 @@ class TestMessageFunctions(unittest.TestCase): #class that inherits from unittes
         original_message1 = "Hello, World!"
         encrypted_message1 = cipher_tool1.encryption(original_message1)
         decrypted_message1 = cipher_tool1.decryption(encrypted_message1)
-        # Assert that after encryption and decryption, the original message is recovered
         self.assertEqual(original_message1, decrypted_message1) #checks that both the input and output is the same/equal
         
     def test_text_to_binary(self):
         # Test if text is correctly converted to binary
         text1 = "AB"
         expected_binary1 = '0100000101000010'  # 'A'= 01000001,'B'= 01000010
-        binary_message1 = text_x_binary_instance1.text_to_binary(text1)
+        binary_message1 = text_x_binary_instance1.text_to_binary(text1)#conversion process
         self.assertEqual(binary_message1, expected_binary1) #checks that both the expected output and the actual output is the same
 
     def test_binary_to_text(self):
         # Test if binary is correctly converted back to text
         binary_message2 = '0100000101000010'
         expected_text2 = 'AB'
-        text2 =text_x_binary_instance1.binary_to_text(binary_message2)
+        text2 =text_x_binary_instance1.binary_to_text(binary_message2)#conversion process
         self.assertEqual(text2, expected_text2) #checks that both the expected output and the actual output is the same
 
     def test_hide_and_extract_message(self):
@@ -180,15 +180,15 @@ class TestMessageFunctions(unittest.TestCase): #class that inherits from unittes
         
         #Converts the message to its binary representation
         secret_message = "Hidden Message"
-        binary_message = text_x_binary_instance1.text_to_binary(secret_message) 
+        binary_message = text_x_binary_instance1.text_to_binary(secret_message) #text to binary conversion process
         
         # Hide message in image
         output_image_path = "output_image.bmp" 
         hide_message_in_image(image_path, binary_message, output_image_path) 
         
         # Extract message from image
-        extracted_binary_message = extract_message_from_image(output_image_path)
-        extracted_message = text_x_binary_instance1.binary_to_text(extracted_binary_message)
+        extracted_binary_message = extract_message_from_image(output_image_path) #extracts binary message from the image
+        extracted_message = text_x_binary_instance1.binary_to_text(extracted_binary_message)#binary to text conversion process
         
         # Assert the extracted message is the same as the original
         self.assertEqual(secret_message, extracted_message) 
