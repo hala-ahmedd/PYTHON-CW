@@ -1,8 +1,13 @@
 # PYTHON-CW
 Modern Use of  Steganography Using Python
 
+Steganography is the science behind hiding a specific file, 
+image, text, audio, or video in another domain: file, image, text, audio, or video.
+
 Goal:
-This application allows users to hide a secret message within an image using the Least Significant Bit (LSB) method. The message is first encrypted using the Caesar Cipher, then converted to binary and embedded in the image. The binary message can later be extracted and decrypted.
+This application allows users to hide a secret message within an image using the Least  Bit (LSB) method. 
+The message is first encrypted using the Caesar Cipher, then converted to binary and embedded in the image. 
+The binary message can later be extracted and decrypted.
 
 Algorithm/Steps:
 User Input: The user provides a secret message.
